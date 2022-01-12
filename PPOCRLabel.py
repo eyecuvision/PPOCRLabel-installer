@@ -1871,7 +1871,10 @@ class MainWindow(QMainWindow, WindowMixin):
             with open(labelpath, 'r', encoding='utf-8') as f:
                 data = f.readlines()
                 for each in data:
-                    file, label = each.split('\t')
+                    try:
+                        file, label = each.split('\t')
+                    except ValueError:
+                        continue
                     if label:
                         label = label.replace('false', 'False')
                         label = label.replace('true', 'True')

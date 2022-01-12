@@ -1,6 +1,6 @@
-cd dist
-del /F /Q *
-cd ..
+
+pushd dist && del /F /Q * 
+popd
 
 pyinstaller --additional-hooks-dir=hooks --paths=./ --noconsole --onefile PPOCRLabel.py
 
