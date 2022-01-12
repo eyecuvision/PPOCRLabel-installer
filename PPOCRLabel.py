@@ -1077,7 +1077,7 @@ class MainWindow(QMainWindow, WindowMixin):
         try:
             trans_dic = []
             for box in shapes:
-                trans_dic.append({"transcription": box['label'], "points": box['points'], 'difficult': box['difficult']})
+                trans_dic.append({"transcription": box['label'], "points": box['points'], 'difficult': False})
             self.PPlabel[annotationFilePath] = trans_dic
 
             if mode == 'Auto':
@@ -1346,7 +1346,7 @@ class MainWindow(QMainWindow, WindowMixin):
             return
         shapes = []
         for box in self.PPlabel[imgidx]:
-            shapes.append((box['transcription'], box['points'], None, None, box['difficult']))
+            shapes.append((box['transcription'], box['points'], None, None,False))
 
         print(shapes)
         self.loadLabels(shapes)
@@ -1878,6 +1878,7 @@ class MainWindow(QMainWindow, WindowMixin):
                         labeldict[file] = eval(label)
                     else:
                         labeldict[file] = []
+
         return labeldict
 
 
