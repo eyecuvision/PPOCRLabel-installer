@@ -1348,7 +1348,6 @@ class MainWindow(QMainWindow, WindowMixin):
         for box in self.PPlabel[imgidx]:
             shapes.append((box['transcription'], box['points'], None, None,False))
 
-        print(shapes)
         self.loadLabels(shapes)
         self.canvas.verified = False
 
@@ -1490,15 +1489,12 @@ class MainWindow(QMainWindow, WindowMixin):
             return
         if self.defaultSaveDir and self.defaultSaveDir != dirpath:
             self.saveLabelFile()
-
         if not isDelete:
             self.loadFilestate(dirpath)
             self.PPlabelpath = dirpath+ '/Label.txt'
             self.PPlabel = self.loadLabelFile(self.PPlabelpath)
             self.Cachelabelpath = dirpath + '/Cache.cach'
             self.Cachelabel = self.loadLabelFile(self.Cachelabelpath)
-            if self.Cachelabel:
-                self.PPlabel = dict(self.Cachelabel, **self.PPlabel)
         self.lastOpenDir = dirpath
         self.dirname = dirpath
 
@@ -1798,12 +1794,8 @@ class MainWindow(QMainWindow, WindowMixin):
         self.iconlist.setMinimumWidth(owidth + 50)
 
     def getImglabelidx(self, filePath):
-        if platform.system()=='Windows':
-            spliter = '\\'
-        else:
-            spliter = '/'
-        filepathsplit = filePath.split(spliter)[-2:]
-        return filepathsplit[0] + '/' + filepathsplit[1]
+       
+        return os.path.basename(filePath)
 
 
 
@@ -1872,16 +1864,14 @@ class MainWindow(QMainWindow, WindowMixin):
                 data = f.readlines()
                 for each in data:
                     try:
-                        file, label = each.split('\t')
+                        file, label = each.rstrip().split('\t')
                     except ValueError:
                         continue
                     if label:
-                        label = label.replace('false', 'False')
-                        label = label.replace('true', 'True')
-                        labeldict[file] = eval(label)
+                        labeldict[self.getImglabelidx(file)] = json.loads(label)
                     else:
-                        labeldict[file] = []
-
+                        labeldict[self.getImglabelidx(file)] = []
+        
         return labeldict
 
 
@@ -1892,7 +1882,9 @@ class MainWindow(QMainWindow, WindowMixin):
                 if key in savedfile and self.PPlabel[key] != []:
                     f.write(key + '\t')
                     f.write(json.dumps(self.PPlabel[key], ensure_ascii=False) + '\n')
-
+                else:
+                    f.write(key + '\t')
+                    f.write(json.dumps(self.PPlabel[key], ensure_ascii=False) + '\n')
         if mode=='Manual':
             msg = 'Images that have been checked are saved in '+ self.PPlabelpath
             QMessageBox.information(self, "Information", msg)
